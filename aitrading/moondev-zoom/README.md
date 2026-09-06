@@ -4,9 +4,9 @@ Where every Moon Dev livestream / zoom session gets turned into something you ca
 actually use. One folder per session, always the same four files, so session #40
 looks exactly like session #1 and the dashboard can read all of them the same way.
 
-`../../dashboard.html` is the **project** dashboard — how the SOL research is doing.
-`dashboard.html` in this folder is the **learning** dashboard — how *you* are doing.
-Two different questions, deliberately two different pages.
+Both dashboards live together in `../dashboards/`. `project-dashboard.html` tracks how
+the SOL research is doing; `learning-dashboard.html` tracks how *you* are doing. Two
+different questions, deliberately two different pages.
 
 ## The one idea that makes this work
 
@@ -60,8 +60,7 @@ visible to you.
 ```
 moondev-zoom/
 ├── README.md                   this file
-├── ROADMAP.md                  dos, don'ts, and the four learning stages
-├── dashboard.html              learning progress — open it, no build step
+├── ROADMAP.md                  dos, don'ts, and the five learning stages
 ├── _template/                  copy this whole folder for each new session
 │   ├── 00-source.md            link, metadata, transcript, capture status
 │   ├── 01-notes.md             what he did and why

@@ -2,8 +2,8 @@
 
 Project dashboard for the SOL / crypto strategy-research work.
 
-`dashboard.html` is a self-contained page — open it in a browser, no build step, no
-dependencies. It has six sections in a left-hand rail:
+`aitrading/dashboards/project-dashboard.html` is a self-contained page — open it in a
+browser, no build step, no dependencies. It has six sections in a left-hand rail:
 
 | Section | What's in it |
 |---|---|
@@ -29,8 +29,8 @@ have never been pushed. Getting them into this repository is item one on the to-
 ## Learning from Moon Dev sessions
 
 `aitrading/moondev-zoom/` is the mentor-study side of the project: one folder per Moon
-Dev livestream, always the same four files, plus its own `dashboard.html` that tracks
-learning progress rather than strategy performance. Start at
+Dev livestream, always the same four files, plus its own dashboard that tracks learning
+progress rather than strategy performance. Start at
 `aitrading/moondev-zoom/README.md`; the dos and don'ts are in `ROADMAP.md` next to it.
 
 The division of labour it assumes: his channel is the Research stage of RBI, this repo

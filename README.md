@@ -25,3 +25,13 @@ per side, $10,000 notional start.
 As of this commit the backtester (`~/aitrading`), the bot library (`~/moondev_bots`)
 and the reference corpus (`~/aitrading/moondev-repos`) exist only on one machine and
 have never been pushed. Getting them into this repository is item one on the to-do list.
+
+## Learning from Moon Dev sessions
+
+`aitrading/moondev-zoom/` is the mentor-study side of the project: one folder per Moon
+Dev livestream, always the same four files, plus its own `dashboard.html` that tracks
+learning progress rather than strategy performance. Start at
+`aitrading/moondev-zoom/README.md`; the dos and don'ts are in `ROADMAP.md` next to it.
+
+The division of labour it assumes: his channel is the Research stage of RBI, this repo
+is the Backtest stage. Ideas cross from one to the other, results never do.

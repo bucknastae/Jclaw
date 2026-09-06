@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moon Dev Zoom — Learning Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<style>
+:root{
+  --paper:#F1F2F3; --sheet:#FFFFFF; --well:#E9EBEC;
+  --ink:#14171B; --ink-2:#4A525C; --ink-3:#7C8792;
+  --rule:#DEE1E4; --rule-2:#C2C7CC;
+  --acc:#6A4A86; --pos:#00806A; --neg:#B03A2B; --warn:#9A6B12;
+  --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --rail:230px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#16181B; --sheet:#1C1F23; --well:#212529;
+    --ink:#E4E7EA; --ink-2:#9AA3AC; --ink-3:#6B747D;
+    --rule:#2A2E33; --rule-2:#3D434A;
+    --acc:#B79BD4; --pos:#35A98D; --neg:#E06A4E; --warn:#D6A544;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#16181B; --sheet:#1C1F23; --well:#212529;
+  --ink:#E4E7EA; --ink-2:#9AA3AC; --ink-3:#6B747D;
+  --rule:#2A2E33; --rule-2:#3D434A;
+  --acc:#B79BD4; --pos:#35A98D; --neg:#E06A4E; --warn:#D6A544;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased}
+p{margin:0}
+h1,h2,h3,h4{margin:0;font-weight:600;text-wrap:balance}
+a{color:var(--acc);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.n,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-family:var(--mono);font-size:.86em;color:var(--ink);
+  background:var(--well);border-radius:3px;padding:.06em .34em}
+
+.shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;padding:30px 0 20px;background:var(--sheet);
+  border-right:1px solid var(--rule);display:flex;flex-direction:column}
+.mast{padding:0 24px 22px}
+.mast .org{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);display:block}
+.mast .nm{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:-.015em;display:block;margin-top:4px;line-height:1.15}
+.mast .sub{font-size:12px;color:var(--ink-3);display:block;margin-top:5px;line-height:1.4}
+.nav{display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto;border-top:1px solid var(--rule)}
+.nav button{position:relative;display:flex;align-items:baseline;gap:9px;width:100%;font:inherit;font-size:14px;
+  color:var(--ink-2);background:none;border:0;border-bottom:1px solid var(--rule);padding:11px 24px;cursor:pointer;text-align:left}
+.nav button:hover{color:var(--ink);background:var(--well)}
+.nav button::before{content:"";position:absolute;left:0;top:-1px;bottom:-1px;width:2px;background:transparent}
+.nav button[aria-selected="true"]{color:var(--ink);font-weight:600;background:var(--paper)}
+.nav button[aria-selected="true"]::before{background:var(--acc)}
+.nav .k{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-left:auto;font-weight:400}
+.nav button[aria-selected="true"] .k{color:var(--acc)}
+.railfoot{padding:16px 24px 0;border-top:1px solid var(--rule);font-family:var(--mono);
+  font-size:10.5px;line-height:1.6;color:var(--ink-3);display:flex;flex-direction:column;gap:10px}
+.railfoot button{font:inherit;color:var(--ink-2);background:none;border:1px solid var(--rule-2);
+  border-radius:2px;padding:4px 9px;cursor:pointer;align-self:flex-start}
+.railfoot button:hover{color:var(--ink);border-color:var(--ink-3)}
+.main{min-width:0;padding:46px 52px 96px;max-width:1010px}
+.pane[hidden]{display:none}
+
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+.head h2{font-family:var(--serif);font-size:34px;line-height:1.1;letter-spacing:-.02em;font-weight:600}
+.head .stand{font-family:var(--serif);font-size:18px;line-height:1.5;color:var(--ink-2);max-width:60ch;margin-top:12px;text-wrap:pretty}
+h3.sec{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em;margin:44px 0 0;padding-bottom:9px;border-bottom:1px solid var(--rule-2)}
+.deck{font-size:14px;color:var(--ink-2);max-width:70ch;margin-top:12px;text-wrap:pretty}
+
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-top:26px;
+  border-top:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2)}
+.fig{padding:16px 20px 15px;border-left:1px solid var(--rule)}
+.fig:first-child{border-left:0;padding-left:0}
+.fig .v{font-family:var(--mono);font-size:27px;font-weight:500;letter-spacing:-.03em;line-height:1;display:block}
+.fig .v.pos{color:var(--pos)} .fig .v.warn{color:var(--warn)} .fig .v.acc{color:var(--acc)}
+.fig .l{font-size:12px;color:var(--ink-2);display:block;margin-top:8px;line-height:1.4}
+
+.note{border-left:2px solid var(--warn);padding:16px 0 16px 18px;margin-top:28px}
+.note h4{font-family:var(--serif);font-size:17px;color:var(--warn)}
+.note p{font-size:14.5px;color:var(--ink-2);max-width:72ch;margin-top:8px}
+
+.pull{border-top:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2);padding:20px 0;margin-top:34px}
+.pull p{font-family:var(--serif);font-size:19px;line-height:1.48;color:var(--ink);max-width:64ch}
+.pull .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-top:12px}
+
+/* stage ladder */
+.stage{border-bottom:1px solid var(--rule);padding:20px 0;display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 20px}
+.stage .num{font-family:var(--mono);font-size:12px;color:var(--ink-3);padding-top:5px}
+.stage h4{font-family:var(--serif);font-size:19px;letter-spacing:-.01em}
+.stage .goal{font-family:var(--serif);font-style:italic;color:var(--ink-2);font-size:15px;margin-top:3px}
+.stage .body{font-size:14.5px;color:var(--ink-2);max-width:72ch;margin-top:10px;text-wrap:pretty}
+.stage .exit{margin-top:12px;background:var(--well);border-left:2px solid var(--acc);padding:11px 14px;font-size:14px;max-width:72ch}
+.stage .exit b{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:4px;font-weight:600}
+.stage.here{background:var(--sheet);margin:0 -18px;padding-left:18px;padding-right:18px;border-left:2px solid var(--acc)}
+.stage.here .num{color:var(--acc);font-weight:600}
+.setme{font:inherit;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule-2);color:var(--ink-3);border-radius:2px;padding:3px 8px;cursor:pointer;margin-top:12px}
+.setme:hover{color:var(--ink);border-color:var(--ink-3)}
+.stage.here .setme{border-color:var(--acc);color:var(--acc);cursor:default}
+
+/* skills matrix */
+.skills{width:100%;border-collapse:collapse;margin-top:22px}
+.skills th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+  text-align:left;font-weight:500;padding:0 0 9px;border-bottom:1px solid var(--rule-2)}
+.skills th.d{text-align:center;width:62px;white-space:nowrap;letter-spacing:.08em}
+.skills td{padding:10px 0;border-bottom:1px solid var(--rule);font-size:14.5px;vertical-align:middle}
+.skills td.s{color:var(--ink)}
+.skills td.s small{display:block;color:var(--ink-3);font-size:12.5px;line-height:1.45;margin-top:2px}
+.skills td.d{text-align:center}
+.dot{width:15px;height:15px;border-radius:50%;border:1px solid var(--rule-2);background:none;cursor:pointer;padding:0;display:inline-block}
+.dot:hover{border-color:var(--acc)}
+.dot.on{background:var(--acc);border-color:var(--acc)}
+.grp{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);padding-top:22px!important;border-bottom:0!important}
+
+/* sessions */
+.ses{border-bottom:1px solid var(--rule);padding:18px 0}
+.ses .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ses .dt{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.ses h4{font-family:var(--serif);font-size:17px}
+.ses .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--rule-2);border-radius:2px;padding:2px 7px;color:var(--ink-3)}
+.ses .tag.open{color:var(--warn);border-color:var(--warn)}
+.ses .tag.done{color:var(--pos);border-color:var(--pos)}
+.ses p{font-size:14px;color:var(--ink-2);max-width:72ch;margin-top:7px}
+.ses .files{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:8px}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 44px;margin-top:8px}
+.rules h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding-bottom:9px;border-bottom:1px solid var(--rule-2);margin-top:32px}
+.rules h4.do{color:var(--pos)} .rules h4.dont{color:var(--neg)}
+.rules ul{list-style:none;margin:0;padding:0}
+.rules li{padding:13px 0;border-bottom:1px solid var(--rule);font-size:14px;color:var(--ink-2);text-wrap:pretty}
+.rules li b{color:var(--ink);font-weight:600}
+.rules li.big{border-left:2px solid var(--neg);padding-left:14px;background:var(--sheet)}
+
+.item{display:flex;gap:11px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--rule);cursor:pointer;font-size:14.5px}
+.item input{appearance:none;-webkit-appearance:none;flex:none;width:15px;height:15px;margin-top:4px;
+  border:1px solid var(--rule-2);border-radius:2px;background:var(--sheet);position:relative;cursor:pointer}
+.item input:checked{background:var(--pos);border-color:var(--pos)}
+.item input:checked::after{content:"";position:absolute;left:4.5px;top:1px;width:3.5px;height:8px;
+  border:solid #fff;border-width:0 1.6px 1.6px 0;transform:rotate(42deg)}
+:root[data-theme="dark"] .item input:checked::after,
+:root:not([data-theme="light"]) .item input:checked::after{border-color:var(--paper)}
+.item input:checked + span{color:var(--ink-3);text-decoration:line-through}
+.item .wy{display:block;color:var(--ink-3);font-size:13px;margin-top:4px;text-decoration:none}
+
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;padding:22px 0 14px}
+  .nav{flex-direction:row;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+  .nav button{width:auto;border-bottom:0;padding:9px 16px}
+  .nav .k{display:none}
+  .main{padding:30px 20px 70px}
+  .stage{grid-template-columns:1fr}
+  .stage .num{padding-top:0}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="rail">
+  <div class="mast">
+    <span class="org">Jclaw · aitrading</span>
+    <span class="nm">Learning Desk</span>
+    <span class="sub">Moon Dev zoom sessions — progress, not output</span>
+  </div>
+  <div class="nav" role="tablist">
+    <button role="tab" id="tab-over" aria-controls="p-over" aria-selected="true">Where I am<span class="k" id="kStage">—</span></button>
+    <button role="tab" id="tab-stages" aria-controls="p-stages" aria-selected="false">Stages<span class="k">5</span></button>
+    <button role="tab" id="tab-skills" aria-controls="p-skills" aria-selected="false">Skills<span class="k" id="kSkill">0</span></button>
+    <button role="tab" id="tab-ses" aria-controls="p-ses" aria-selected="false">Sessions<span class="k" id="kSes">1</span></button>
+    <button role="tab" id="tab-rules" aria-controls="p-rules" aria-selected="false">Rules<span class="k">21</span></button>
+    <button role="tab" id="tab-next" aria-controls="p-next" aria-selected="false">Do next<span class="k" id="kNext">7</span></button>
+  </div>
+  <div class="railfoot">
+    <button id="themeBtn">theme</button>
+    <span>ticks save to this browser only</span>
+    <button id="resetBtn">reset ticks</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ============ OVERVIEW ============ -->
+<section class="pane" id="p-over" role="tabpanel" aria-labelledby="tab-over">
+  <div class="head">
+    <p class="kicker">Learning dashboard</p>
+    <h2>Where I am</h2>
+    <p class="stand">This page measures whether you are getting better. The project dashboard
+    one directory up measures whether the strategies are any good. Keep the two questions
+    apart — it is entirely possible to make progress on one and none on the other.</p>
+  </div>
+
+  <div class="figs">
+    <div class="fig"><span class="v acc" id="fStage">—</span><span class="l">Current stage<br><span id="fStageName">not set</span></span></div>
+    <div class="fig"><span class="v" id="fOwn">0</span><span class="l">Skills owned<br>(of <span id="fSkillN">0</span>)</span></div>
+    <div class="fig"><span class="v" id="fTyped">0</span><span class="l">Skills typed at least once</span></div>
+    <div class="fig"><span class="v warn" id="fSes">1</span><span class="l">Sessions logged</span></div>
+    <div class="fig"><span class="v" id="fAnalysed">0</span><span class="l">Sessions analysed</span></div>
+    <div class="fig"><span class="v" id="fIdeas">0</span><span class="l">Ideas through walk&#8209;forward</span></div>
+  </div>
+
+  <div class="note">
+    <h4>The first session isn't analysed yet</h4>
+    <p>Session <code>2026-09-06--7SRZ0HBwDxA</code> is scaffolded but empty: the video could not be
+    reached from the environment that built this folder, so nothing has been written about
+    what's in it. Grab the transcript — <code>...</code> under the player → <em>Show transcript</em> →
+    copy — and the notes can be filled in properly. The alternative was inventing an analysis
+    of your mentor's stream, which would have been worse than an empty file.</p>
+  </div>
+
+  <h3 class="sec">How to read this page</h3>
+  <p class="deck">Six panels, and only two of them have numbers you should care about early on.</p>
+
+  <div class="ses">
+    <div class="top"><h4>Stages</h4><span class="tag">the ladder</span></div>
+    <p>Five stages from Observer to Operator, each with an exit test. Set your current stage
+    there; it drives the headline number on this page. Promote yourself only when you pass
+    the test, not when you feel ready — the whole reason the tests exist is that stage 1
+    feels like stage 4.</p>
+  </div>
+  <div class="ses">
+    <div class="top"><h4>Skills</h4><span class="tag">the honest one</span></div>
+    <p>Eighteen skills, each rated seen → typed → own it. Click the dots. This is the panel
+    that will tell you the truth, because the gap between "seen" and "own it" is where the
+    learning actually is, and it is very visible when laid out in a grid.</p>
+  </div>
+  <div class="ses">
+    <div class="top"><h4>Sessions &amp; Rules &amp; Do next</h4><span class="tag">reference</span></div>
+    <p>Sessions is the log. Rules is the dos and don'ts from <code>ROADMAP.md</code>, here so you
+    see them without opening a file. Do next is the seven things to do this week.</p>
+  </div>
+
+  <div class="pull">
+    <p>You are not trying to reproduce his results. You are trying to reproduce his process.</p>
+    <p class="src">The point of this folder</p>
+  </div>
+</section>
+
+<!-- ============ STAGES ============ -->
+<section class="pane" id="p-stages" role="tabpanel" aria-labelledby="tab-stages" hidden>
+  <div class="head">
+    <p class="kicker">The ladder</p>
+    <h2>Stages</h2>
+    <p class="stand">Each stage has an exit test, because watching someone build a live trading
+    bot and then building the same bot feels like arriving when it is in fact step one.</p>
+  </div>
+  <div id="stages"></div>
+  <div class="pull">
+    <p>Real money is not stage 5. It is a separate decision, made with a written position-sizing
+    plan and a maximum loss you have decided in advance — not a milestone you unlock.</p>
+    <p class="src">ROADMAP.md</p>
+  </div>
+</section>
+
+<!-- ============ SKILLS ============ -->
+<section class="pane" id="p-skills" role="tabpanel" aria-labelledby="tab-skills" hidden>
+  <div class="head">
+    <p class="kicker">Self-assessment</p>
+    <h2>Skills</h2>
+    <p class="stand">Rate honestly and re-rate after every session. Under-rating yourself costs
+    you a little time; over-rating yourself costs you money at stage 4.</p>
+  </div>
+  <p class="deck"><b>Seen</b> — watched someone do it. <b>Typed</b> — did it yourself with the
+  video or notes open. <b>Own it</b> — could do it from scratch, unaided, and explain why each
+  step is there. Only the third column counts as a skill.</p>
+  <table class="skills">
+    <thead><tr><th>Skill</th><th class="d">Seen</th><th class="d">Typed</th><th class="d">Own it</th></tr></thead>
+    <tbody id="skillBody"></tbody>
+  </table>
+</section>
+
+<!-- ============ SESSIONS ============ -->
+<section class="pane" id="p-ses" role="tabpanel" aria-labelledby="tab-ses" hidden>
+  <div class="head">
+    <p class="kicker">The log</p>
+    <h2>Sessions</h2>
+    <p class="stand">One folder per session, four files each, in <code>sessions/</code>. Newest first.</p>
+  </div>
+
+  <h3 class="sec">Logged</h3>
+  <div class="ses">
+    <div class="top">
+      <span class="dt">2026-09-06</span>
+      <h4>Untitled live stream</h4>
+      <span class="tag open">not analysed</span>
+    </div>
+    <p>Video <code>7SRZ0HBwDxA</code>. Scaffolded only — the environment that created this folder
+    could not reach <code>youtube.com</code>, so title, duration and content are all unknown.
+    <code>01-notes.md</code> carries public background about Moon Dev's general method, clearly
+    marked, so you have something to take notes against. Everything else is blank on purpose.</p>
+    <p class="files">sessions/2026-09-06--7SRZ0HBwDxA/ · 00-source.md 01-notes.md 02-rebuild.md 03-review.md</p>
+  </div>
+
+  <h3 class="sec">Starting the next one</h3>
+  <p class="deck">Copy the template, don't hand-make the folder — the dashboard and your future
+  self both rely on the four files always being the same four files.</p>
+  <div class="ses">
+    <p class="files">cp -r _template "sessions/$(date +%F)--&lt;videoid&gt;"</p>
+    <p>Then work the loop in <code>README.md</code>: capture → watch → notes from memory →
+    rebuild by typing → review. Budget about twice the stream length, and do fewer sessions
+    properly rather than all of them passively.</p>
+  </div>
+</section>
+
+<!-- ============ RULES ============ -->
+<section class="pane" id="p-rules" role="tabpanel" aria-labelledby="tab-rules" hidden>
+  <div class="head">
+    <p class="kicker">Standing orders</p>
+    <h2>Rules</h2>
+    <p class="stand">The full versions live in <code>ROADMAP.md</code>. The don'ts matter more than
+    the dos right now: getting a do wrong makes you slower, getting a don't wrong costs money.</p>
+  </div>
+  <div class="rules">
+    <div>
+      <h4 class="do">Do</h4>
+      <ul>
+        <li><b>Rebuild by typing.</b> Cloning teaches you where his files are. Typing teaches you what they do.</li>
+        <li><b>Take one idea per session.</b> A four-hour stream has forty. Carry one. You have 81 bots already — ideas are not the bottleneck.</li>
+        <li><b>Write notes from memory first.</b> Then correct against the transcript. The corrections are the map of what you missed.</li>
+        <li><b>Timebox.</b> Two hours of rebuilding beats eight hours of watching, and it isn't close.</li>
+        <li><b>Keep his tree and your tree separate.</b> Reference code in one place, validated code in another.</li>
+        <li><b>Record the negative results.</b> "Degraded out-of-sample, dropped" is a real finding you will otherwise re-derive in four months.</li>
+        <li><b>Read the repos, not just the streams.</b> The stream is a performance of the code; the repo is the code.</li>
+        <li><b>Treat the stream as the start of the work.</b> Not the end of it.</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="dont">Don't</h4>
+      <ul>
+        <li class="big"><b>Don't trade real money on a strategy you saw on a livestream.</b> Not small, not "just to feel it". A demoed strategy has an in-sample result and no out-of-sample result — which means it has no result.</li>
+        <li><b>Don't treat a demo as evidence.</b> He found the strategy, then showed it working on the data he found it in. That's in-sample by construction. Not dishonest — structural.</li>
+        <li><b>Don't confuse "it ran" with "it works."</b> A bot that executes cleanly and loses steadily is a working program and a broken strategy.</li>
+        <li><b>Don't let AI-written backtests through unread.</b> Lookahead bias is the failure mode: indicators computed before the split, a signal peeking at its own bar, a fill at a price not available at decision time. They make beautiful equity curves.</li>
+        <li><b>Don't skip the backtest because the idea is obviously good.</b> Obviously-good is where overfitting lives.</li>
+        <li><b>Don't commit secrets.</b> No <code>.env</code>, no keys in notebooks, screenshots or pasted tracebacks. Read-only keys where they'll do.</li>
+        <li><b>Don't run anyone's script against a funded account.</b> His, a viewer's, or one an AI wrote for you. Read it fully, run it on paper.</li>
+        <li><b>Don't chase every new repo.</b> He ships constantly. Following all of it feels busy and teaches nothing.</li>
+        <li><b>Don't measure progress in hours watched.</b> Easiest number to move, least connected to whether you can do anything.</li>
+        <li><b>Don't buy your way past the work.</b> Nothing purchased is exempt from your own out-of-sample test.</li>
+        <li><b>Don't take only AI and livestreams as feedback.</b> Both will happily agree with you about a bad strategy. Your walk-forward module won't.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEXT ============ -->
+<section class="pane" id="p-next" role="tabpanel" aria-labelledby="tab-next" hidden>
+  <div class="head">
+    <p class="kicker">This week</p>
+    <h2>Do next</h2>
+    <p class="stand">Seven things, in order. The first one unblocks everything else in this folder.</p>
+  </div>
+  <div style="margin-top:26px">
+    <label class="item"><input type="checkbox" data-id="n1"><span><b>Capture the transcript for <code>7SRZ0HBwDxA</code>.</b>
+      <span class="wy">Open the video, <code>...</code> under the player, Show transcript, select all, copy. Paste it into <code>00-source.md</code> or hand it over for the analysis. Do this before the stream gets trimmed or unlisted.</span></span></label>
+    <label class="item"><input type="checkbox" data-id="n2"><span><b>Set your current stage.</b>
+      <span class="wy">Stages panel. Read the exit tests before you pick — the honest answer is usually one lower than the flattering one.</span></span></label>
+    <label class="item"><input type="checkbox" data-id="n3"><span><b>Fill in the skills matrix once, quickly.</b>
+      <span class="wy">Don't agonise. It's a baseline, and it's only useful because you'll re-rate it in a month and see the shape of the change.</span></span></label>
+    <label class="item"><input type="checkbox" data-id="n4"><span><b>Confirm <code>.env</code> is gitignored across every tree you work in.</b>
+      <span class="wy">Yours, and any of his repos you've cloned. Cheapest five minutes in this list.</span></span></label>
+    <label class="item"><input type="checkbox" data-id="n5"><span><b>Find whether this stream has code in <code>Moon-Dev-Code</code>.</b>
+      <span class="wy">That repo aggregates the YouTube project code. Knowing whether code exists changes whether the session is a rebuild or a notes-only session.</span></span></label>
+    <label class="item"><input type="checkbox" data-id="n6"><span><b>Do one full loop end to end on this session.</b>
+      <span class="wy">Capture, watch, notes from memory, rebuild by typing, review. Once. The first one is slow; the structure is what makes the tenth fast.</span></span></label>
+    <label class="item"><input type="checkbox" data-id="n7"><span><b>Push one idea from it into <code>backtest/walkforward.py</code>.</b>
+      <span class="wy">One. Stated as a hypothesis that can fail, with fees and slippage set to the parent repo's 0.10% / 0.05%. Then believe the answer it gives you.</span></span></label>
+  </div>
+
+  <div class="pull">
+    <p>His channel is your Research stage. Your repo is your Backtest stage. Keep them separate
+    and the pipeline works; let them mix and you lose track of what's been validated and what
+    merely looks like it has.</p>
+    <p class="src">README.md</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STAGES = [
+    {n:"Stage 0", t:"Observer", g:"Understand what you're even looking at.",
+     b:"You can follow a stream without pausing. You know what a backtest is, what a fill is, what slippage and fees do to a result, and why “it made 400% in the backtest” is not information yet.",
+     x:"Watch a full session and write 01-notes.md from memory before opening the transcript — and have it be more than 60% right."},
+    {n:"Stage 1", t:"Typist", g:"Your hands know the tools.",
+     b:"You retype his builds rather than cloning them. You hit the errors he didn't hit and fix them yourself. You're learning the API surface — backtesting.py, the exchange client, the data layer — through your fingers.",
+     x:"Rebuild a session's bot from your own notes only, no video open, and get it running end to end."},
+    {n:"Stage 2", t:"Tinkerer", g:"You can change it and predict what happens.",
+     b:"You change a rule or a parameter and say out loud what you expect before you run it. The gap between prediction and result is the entire lesson. Most of the real learning is here, and it's the stage people skip because it produces nothing to show anyone.",
+     x:"State a change and a predicted effect on Sharpe / drawdown / trade count, run it, and be directionally right three times running."},
+    {n:"Stage 3", t:"Researcher", g:"His ideas go into your filter, not your wallet.",
+     b:"You stop rebuilding and start harvesting. Each session yields at most one idea, which becomes a hypothesis, which goes through walkforward.py like anything else — in-sample selection, out-of-sample scoring, efficiency ratio, degradation check. Most will die there. That is the system working.",
+     x:"An idea sourced from a stream survives out-of-sample walk-forward with an efficiency ratio you'd have accepted from your own idea — and separately, you have killed at least five that didn't."},
+    {n:"Stage 4", t:"Operator", g:"Forward-testing, still on paper.",
+     b:"Paper-trade the survivors forward and reconcile paper fills against what the backtester predicted — the parent repo already lists this as a gap. If predicted and actual diverge, your backtest is wrong, and you'd much rather learn that for free.",
+     x:"60+ days of forward paper results matching backtest expectations within a band you defined in advance."}
+  ];
+
+  var SKILLS = [
+    {g:"Foundations"},
+    {id:"py",  s:"Python and pandas on price data", d:"Resampling, joins, and not silently reindexing a series out of alignment"},
+    {id:"ohlc",s:"Sourcing and cleaning OHLCV", d:"Gaps, duplicate bars, exchange downtime, timezone drift"},
+    {id:"read",s:"Reading someone else's trading code", d:"Working out what a strategy does without running it"},
+    {g:"Backtesting"},
+    {id:"bt",  s:"backtesting.py", d:"Strategy class, init vs next, running a parameter sweep"},
+    {id:"sig", s:"Indicator and signal construction", d:"And knowing which bar each value is actually available on"},
+    {id:"split",s:"Train / test discipline", d:"Splitting before anything is computed, never after"},
+    {id:"look",s:"Spotting lookahead bias", d:"The single most valuable skill on this list"},
+    {id:"cost",s:"Fee and slippage modelling", d:"0.10% and 0.05% per side is the house standard in this repo"},
+    {g:"Validation"},
+    {id:"wf",  s:"Walk-forward validation", d:"Rolling and anchored windows, in-sample selection, out-of-sample scoring"},
+    {id:"of",  s:"Overfitting detection", d:"Efficiency ratio, degradation checks, reading the parameter surface"},
+    {id:"surv",s:"Survivorship and selection bias", d:"Why the symbol list itself is a source of edge that isn't real"},
+    {id:"stat",s:"Knowing when a result is noise", d:"Trade count, confidence, and how much a Sharpe on 30 trades is worth"},
+    {g:"Execution and safety"},
+    {id:"risk",s:"Position sizing and risk limits", d:"Written down in advance, not decided in the moment"},
+    {id:"api", s:"Exchange APIs, read-only", d:"Pulling data and account state without an order permission anywhere near it"},
+    {id:"paper",s:"Paper execution loop", d:"A forward loop that runs unattended and logs everything"},
+    {id:"recon",s:"Reconciling fills against backtest", d:"The check that tells you whether your backtest was ever true"},
+    {g:"Tooling"},
+    {id:"ai",  s:"LLM codegen for strategies", d:"The RBI agent approach — fast, and unsafe if you don't read the output"},
+    {id:"sec", s:"Key and secret hygiene", d:"env files, gitignore, rotation, read-only by default"}
+  ];
+
+  var KEY = "moondev-desk-v1";
+  var state = {stage: null, skills: {}, next: {}};
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) { var p = JSON.parse(raw); state.stage = p.stage; state.skills = p.skills || {}; state.next = p.next || {}; }
+  } catch (e) {}
+
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---- tabs ---- */
+  var tabs = [].slice.call(document.querySelectorAll(".nav button"));
+  function show(id) {
+    tabs.forEach(function (t) {
+      var on = t.id === id, pane = document.getElementById(t.getAttribute("aria-controls"));
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      if (pane) pane.hidden = !on;
+    });
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () { show(t.id); window.scrollTo(0, 0); });
+    t.addEventListener("keydown", function (e) {
+      var i = tabs.indexOf(t), j = e.key === "ArrowDown" || e.key === "ArrowRight" ? i + 1
+            : e.key === "ArrowUp" || e.key === "ArrowLeft" ? i - 1 : -1;
+      if (j < 0 || j >= tabs.length) return;
+      e.preventDefault(); tabs[j].focus(); show(tabs[j].id); window.scrollTo(0, 0);
+    });
+  });
+
+  /* ---- theme ---- */
+  document.getElementById("themeBtn").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur === "dark" || (!cur && window.matchMedia("(prefers-color-scheme:dark)").matches);
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+
+  /* ---- stages ---- */
+  var stageWrap = document.getElementById("stages");
+  STAGES.forEach(function (s, i) {
+    var d = document.createElement("div");
+    d.className = "stage"; d.setAttribute("data-i", i);
+    d.innerHTML = '<div class="num">' + s.n + '</div><div>' +
+      '<h4>' + s.t + '</h4><p class="goal">' + s.g + '</p>' +
+      '<p class="body">' + s.b + '</p>' +
+      '<div class="exit"><b>Exit test</b>' + s.x + '</div>' +
+      '<button class="setme">I am here</button></div>';
+    d.querySelector(".setme").addEventListener("click", function () {
+      state.stage = (state.stage === i) ? null : i; save(); paint();
+    });
+    stageWrap.appendChild(d);
+  });
+
+  /* ---- skills ---- */
+  var body = document.getElementById("skillBody"), skillCount = 0;
+  SKILLS.forEach(function (s) {
+    var tr = document.createElement("tr");
+    if (s.g) { tr.innerHTML = '<td class="grp" colspan="4">' + s.g + '</td>'; body.appendChild(tr); return; }
+    skillCount++;
+    tr.innerHTML = '<td class="s">' + s.s + '<small>' + s.d + '</small></td>' +
+      '<td class="d"><button class="dot" data-s="' + s.id + '" data-l="1" aria-label="seen"></button></td>' +
+      '<td class="d"><button class="dot" data-s="' + s.id + '" data-l="2" aria-label="typed"></button></td>' +
+      '<td class="d"><button class="dot" data-s="' + s.id + '" data-l="3" aria-label="own it"></button></td>';
+    body.appendChild(tr);
+  });
+  document.getElementById("fSkillN").textContent = skillCount;
+  [].forEach.call(document.querySelectorAll(".dot"), function (b) {
+    b.addEventListener("click", function () {
+      var id = b.getAttribute("data-s"), l = +b.getAttribute("data-l");
+      state.skills[id] = (state.skills[id] === l) ? 0 : l; save(); paint();
+    });
+  });
+
+  /* ---- do-next checklist ---- */
+  var boxes = [].slice.call(document.querySelectorAll(".item input[type=checkbox]"));
+  boxes.forEach(function (b) {
+    b.addEventListener("change", function () {
+      state.next[b.getAttribute("data-id")] = b.checked; save(); paint();
+    });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    if (!window.confirm("Clear every tick, rating and stage on this page?")) return;
+    state = {stage: null, skills: {}, next: {}}; save(); paint();
+  });
+
+  /* ---- paint ---- */
+  function paint() {
+    [].forEach.call(stageWrap.children, function (el, i) {
+      var here = state.stage === i;
+      el.classList.toggle("here", here);
+      el.querySelector(".setme").textContent = here ? "✓ you are here" : "I am here";
+    });
+    var st = state.stage;
+    var label = st === null || st === undefined ? "—" : String(st);
+    document.getElementById("fStage").textContent = label;
+    document.getElementById("fStageName").textContent =
+      st === null || st === undefined ? "not set" : STAGES[st].t;
+    document.getElementById("kStage").textContent = st === null || st === undefined ? "—" : STAGES[st].t;
+
+    var own = 0, typed = 0;
+    [].forEach.call(document.querySelectorAll(".dot"), function (b) {
+      var lvl = state.skills[b.getAttribute("data-s")] || 0;
+      b.classList.toggle("on", lvl >= +b.getAttribute("data-l"));
+    });
+    Object.keys(state.skills).forEach(function (k) {
+      var v = state.skills[k] || 0;
+      if (v >= 3) own++;
+      if (v >= 2) typed++;
+    });
+    document.getElementById("fOwn").textContent = own;
+    document.getElementById("fTyped").textContent = typed;
+    document.getElementById("kSkill").textContent = own + "/" + skillCount;
+
+    var left = 0;
+    boxes.forEach(function (b) {
+      b.checked = !!state.next[b.getAttribute("data-id")];
+      if (!b.checked) left++;
+    });
+    document.getElementById("kNext").textContent = left || "done";
+  }
+
+  paint();
+  show("tab-over");
+})();
+</script>
+</body>
+</html>
